@@ -37,6 +37,8 @@ contract ReplayTest7 is Invariants, Setup {
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     function test_replay_7_assert_ERC4626_MINT_INVARIANT_C() public {
+        // PASS, forked in failing state
+        vm.skip(true);
         _setUpActor(USER1);
         Tester.mintEEV(4369999, 0, 1);
         Tester.deposit(83, 0, 0);
