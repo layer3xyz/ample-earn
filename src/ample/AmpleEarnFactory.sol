@@ -4,6 +4,7 @@ pragma solidity 0.8.26;
 import {EulerEarnFactory} from "../EulerEarnFactory.sol";
 
 import {IAmpleEarn} from "./interfaces/IAmpleEarn.sol";
+import {IAmpleEarnFactory, VRFConfig} from "./interfaces/IAmpleEarnFactory.sol";
 import {AmpleEventsLib} from "./libraries/AmpleEventsLib.sol";
 import {AmpleEarn} from "./AmpleEarn.sol";
 
@@ -26,30 +27,47 @@ import {AmpleEarn} from "./AmpleEarn.sol";
 /// @custom:contact security@euler.xyz
 /// @custom:contact security@ample.money
 /// @notice This contract allows to create AmpleEarn vaults, and to index them easily.
-contract AmpleEarnFactory is EulerEarnFactory {
+contract AmpleEarnFactory is EulerEarnFactory, IAmpleEarnFactory {
+    /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
+    /*                         CONSTRUCTOR                        */
+    /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
+
+    /// @dev Initializes the contract.
+    /// @param _owner The owner of the factory contract.
+    /// @param _evc The address of the EVC contract.
+    /// @param _permit2 The address of the Permit2 contract.
+    /// @param _perspective The address of the supported perspective contract.
     constructor(address _owner, address _evc, address _permit2, address _perspective)
         EulerEarnFactory(_owner, _evc, _permit2, _perspective)
     {}
 
-    /// @notice Creates a new AmpleEarn vault.
-    /// @param initialOwner The owner of the vault.
-    /// @param initialTimelock The initial timelock of the vault.
-    /// @param asset The address of the underlying asset.
-    /// @param name The name of the vault.
-    /// @param symbol The symbol of the vault.
-    /// @param salt The salt to use for the AmpleEarn vault's CREATE2 address.
+    /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
+    /*                          EXTERNAL                          */
+    /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
+
+    /// @inheritdoc IAmpleEarnFactory
     function createAmpleEarn(
         address initialOwner,
         uint256 initialTimelock,
         address asset,
         string memory name,
         string memory symbol,
-        bytes32 salt
+        bytes32 salt,
+        address vrfCoordinator,
+        VRFConfig memory vrfConfig
     ) external returns (IAmpleEarn ampleEarn) {
         ampleEarn = IAmpleEarn(
             address(
                 new AmpleEarn{salt: salt}(
-                    initialOwner, address(evc), permit2Address, initialTimelock, asset, name, symbol
+                    initialOwner,
+                    address(evc),
+                    permit2Address,
+                    initialTimelock,
+                    asset,
+                    name,
+                    symbol,
+                    vrfCoordinator,
+                    vrfConfig
                 )
             )
         );
