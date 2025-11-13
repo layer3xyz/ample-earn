@@ -1,2 +1,3 @@
 openzeppelin-contracts/=lib/openzeppelin-contracts/contracts/
 ethereum-vault-connector/=lib/ethereum-vault-connector/src/
+chainlink-brownie-contracts/=lib/foundry-chainlink-toolkit/lib/chainlink-brownie-contracts/contracts/src/

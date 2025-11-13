@@ -1,7 +1,20 @@
 {
-  "workbench.colorTheme": "Default Dark Modern",
+  "workbench.colorTheme": "Solidity Visual Developer Dark",
   "wake.compiler.solc.remappings": [
     "openzeppelin-contracts/=lib/openzeppelin-contracts/contracts/",
-    "ethereum-vault-connector/=lib/ethereum-vault-connector/src/"
+    "ethereum-vault-connector/=lib/ethereum-vault-connector/src/",
+    "chainlink-brownie-contracts/=lib/foundry-chainlink-toolkit/lib/chainlink-brownie-contracts/contracts/src/",
+    "@chainlink/contracts/=lib/foundry-chainlink-toolkit/lib/chainlink-brownie-contracts/contracts/src/",
+    "@openzeppelin/=lib/foundry-chainlink-toolkit/lib/openzeppelin-contracts/",
+    "ds-test/=lib/ethereum-vault-connector/lib/forge-std/lib/ds-test/src/",
+    "erc4626-tests/=lib/erc4626-tests/",
+    "euler-vault-kit/=lib/euler-vault-kit/",
+    "forge-gas-snapshot/=lib/euler-vault-kit/lib/permit2/lib/forge-gas-snapshot/src/",
+    "forge-std/=lib/forge-std/src/",
+    "foundry-chainlink-toolkit/=lib/foundry-chainlink-toolkit/",
+    "halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",
+    "openzeppelin/=lib/ethereum-vault-connector/lib/openzeppelin-contracts/contracts/",
+    "permit2/=lib/euler-vault-kit/lib/permit2/",
+    "solmate/=lib/euler-vault-kit/lib/permit2/lib/solmate/"
   ]
 }
