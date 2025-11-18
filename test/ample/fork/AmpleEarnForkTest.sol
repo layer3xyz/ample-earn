@@ -15,6 +15,7 @@ import {IOwnable} from "../../../src/interfaces/IEulerEarn.sol";
 import {MerkleHelper} from "../helpers/MerkleHelper.sol";
 import {VRFCoordinatorV2_5Mock} from "../mocks/chainlink/VRFCoordinatorV2_5Mock.sol";
 import {PerspectiveMock} from "../../mocks/PerspectiveMock.sol";
+import {IPerspective} from "../../../src/interfaces/IPerspective.sol";
 
 uint256 constant TIMELOCK = 1 weeks;
 
@@ -42,7 +43,7 @@ contract AmpleEarnForkTest is Test {
     IERC4626 eulerVault;
     VRFCoordinatorV2_5Mock vrfCoordinator;
     uint256 vrfSubscriptionId;
-    PerspectiveMock perspective;
+    IPerspective perspective;
 
     modifier whenUserHasBalance(address token, address user, uint256 amount) {
         deal(token, user, amount);
@@ -126,11 +127,7 @@ contract AmpleEarnForkTest is Test {
         // Setup VRF
         vrfSubscriptionId = setUpVRF();
 
-        // Deploy perspective mock and verify Euler vault as allowed strategy
-        perspective = new PerspectiveMock();
-        perspective.perspectiveVerify(address(eulerVault));
-        console.log("Deployed PerspectiveMock: %s", address(perspective));
-        vm.label({account: address(perspective), newLabel: "PerspectiveMock"});
+        perspective = IPerspective(0xFEA8e8a4d7ab8C517c3790E49E92ED7E1166F651); // Perspective on Base mainnet
 
         vm.startPrank(OWNER);
 
