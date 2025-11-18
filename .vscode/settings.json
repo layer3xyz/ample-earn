@@ -8,6 +8,7 @@
     "@openzeppelin/=lib/foundry-chainlink-toolkit/lib/openzeppelin-contracts/",
     "ds-test/=lib/ethereum-vault-connector/lib/forge-std/lib/ds-test/src/",
     "erc4626-tests/=lib/erc4626-tests/",
+    "euler-interfaces/=lib/euler-interfaces/",
     "euler-vault-kit/=lib/euler-vault-kit/",
     "forge-gas-snapshot/=lib/euler-vault-kit/lib/permit2/lib/forge-gas-snapshot/src/",
     "forge-std/=lib/forge-std/src/",

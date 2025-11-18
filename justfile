@@ -20,21 +20,23 @@ ECHIDNA_CONFIG := "./test/enigma-dark-invariants/_config/echidna_config.yaml"
 ECHIDNA_CORPUS := "./test/enigma-dark-invariants/_corpus/echidna/default/_data/corpus"
 ECHIDNA_REPLAY := "./test/enigma-dark-invariants/replays"
 
+AMPLE_TEST_PATH := "test/ample/**/*.sol"
+
 # ---------------------------------------------------------------------------- #
 #                                     AMPLE                                    #
 # ---------------------------------------------------------------------------- #
 
 # Run all Ample tests
 [group("ample")]
-test-ample:
-    forge test --match-path "test/ample/**/*.sol" -vv
-alias ta := test-ample
+ample-test *args:
+    forge test --match-path '{{ AMPLE_TEST_PATH }}' {{ args }}
+alias at := ample-test
 
-# Run all Ample fork tests
+# Performs a gas report
 [group("ample")]
-test-ample-fork:
-    forge test --match-path "test/ample/fork/**/*.sol" -vv
-alias taf := test-ample-fork
+ample-gas-report *args:
+    forge test --match-path '{{ AMPLE_TEST_PATH }}' --gas-report {{ args }}
+alias agr := ample-gas-report
 
 # ---------------------------------------------------------------------------- #
 #                                    FOUNDRY                                   #
@@ -173,6 +175,42 @@ alias r := runes
 generate-merkle:
     forge script script/ample/GenerateMerkleRoot.s.sol -vvv
 alias gm := generate-merkle
+
+# Check chain configs against Euler deployments
+[group("scripts")]
+check-config:
+    @bash script/ample/config/helpers/check-config.sh
+alias cc := check-config
+
+# Update chain configs from Euler deployments
+[group("scripts")]
+update-config:
+    @bash script/ample/config/helpers/update-config.sh
+alias uc := update-config
+
+# Deploy AmpleEarnFactory only
+[group("scripts")]
+deploy-factory *args:
+    forge script script/ample/Deploy.s.sol --sig "run()" {{ args }}
+alias df := deploy-factory
+
+# Deploy AmpleEarnFactory and create a vault
+[group("scripts")]
+deploy-vault *args:
+    CREATE_VAULT=true forge script script/ample/Deploy.s.sol --sig "run()" {{ args }}
+alias dv := deploy-vault
+
+# Deploy to local testnet
+[group("scripts")]
+deploy-local:
+    forge script script/ample/Deploy.s.sol --sig "run()" --fork-url http://localhost:8545 --broadcast
+alias dl := deploy-local
+
+# Deploy vault to local testnet
+[group("scripts")]
+deploy-vault-local:
+    CREATE_VAULT=true forge script script/ample/Deploy.s.sol --sig "run()" --fork-url http://localhost:8545 --broadcast
+alias dvl := deploy-vault-local
 
 # ---------------------------------------------------------------------------- #
 #                                    UTILITY                                   #
