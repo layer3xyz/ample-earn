@@ -21,6 +21,22 @@ ECHIDNA_CORPUS := "./test/enigma-dark-invariants/_corpus/echidna/default/_data/c
 ECHIDNA_REPLAY := "./test/enigma-dark-invariants/replays"
 
 # ---------------------------------------------------------------------------- #
+#                                     AMPLE                                    #
+# ---------------------------------------------------------------------------- #
+
+# Run all Ample tests
+[group("ample")]
+test-ample:
+    forge test --match-path "test/ample/**/*.sol" -vv
+alias ta := test-ample
+
+# Run all Ample fork tests
+[group("ample")]
+test-ample-fork:
+    forge test --match-path "test/ample/fork/**/*.sol" -vv
+alias taf := test-ample-fork
+
+# ---------------------------------------------------------------------------- #
 #                                    FOUNDRY                                   #
 # ---------------------------------------------------------------------------- #
 
@@ -33,7 +49,7 @@ alias b := build
 # Generate code coverage report, excluding tests
 [group("foundry")]
 coverage:
-    forge coverage --exclude-tests
+    forge coverage --exclude-tests --no-match-coverage "(script|scripts|external|node_modules)"
 alias cov := coverage
 
 # Generate code coverage report, including tests
@@ -103,12 +119,6 @@ test-path path:
     forge test --match-path {{ path }}
 alias tp := test-path
 
-# Run tests with verbosity (use -vvvv for max detail)
-[group("foundry")]
-test-verbose *args:
-    forge test -vvvv {{ args }}
-alias tv := test-verbose
-
 # ---------------------------------------------------------------------------- #
 #                               INVARIANT TESTING                              #
 # ---------------------------------------------------------------------------- #
@@ -153,6 +163,16 @@ alias m := medusa
 runes:
     runes convert {{ ECHIDNA_CORPUS }}/reproducers --output {{ ECHIDNA_REPLAY }}
 alias r := runes
+
+# ---------------------------------------------------------------------------- #
+#                                   SCRIPTS                                    #
+# ---------------------------------------------------------------------------- #
+
+# Generate merkle root for prize pool testing
+[group("scripts")]
+generate-merkle:
+    forge script script/ample/GenerateMerkleRoot.s.sol -vvv
+alias gm := generate-merkle
 
 # ---------------------------------------------------------------------------- #
 #                                    UTILITY                                   #

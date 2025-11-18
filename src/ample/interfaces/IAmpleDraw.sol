@@ -59,11 +59,11 @@ interface IAmpleDraw {
     /*                 ONLY PRIZE VAULT FUNCTIONS                 */
     /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
 
-    /// @notice Redeem a prize from the prize vault
-    function redeemPrize(address to, uint256 prize) external;
-
     /// @notice Request a draw for a given draw ID
     function requestDraw(uint256 prizeId, bool nativePayment) external returns (uint256 requestId);
+
+    /// @notice Safe transfer a prize from the prize vault
+    function safeTransferPrize(address to, uint256 prize) external;
 
     /// @notice Update the VRF configuration
     function updateVRFConfig(VRFConfig memory _vrfConfig) external;

@@ -22,7 +22,7 @@ struct PrizePool {
     bytes32 merkleRoot;
     uint256 totalTwab;
     uint256 winningTicketId;
-    uint128 prize;
+    uint256 prize;
     bool claimed;
 }
 
@@ -49,7 +49,19 @@ interface IAmpleEarn is IERC4626, IEulerEarnStaticTyping {
     function isPrizekeeper(address account) external view returns (bool);
 
     /// @notice The prize pool for a given prize ID.
-    function prizePool(uint256 prizeId) external view returns (bytes32, uint256, uint256, uint128, bool);
+    function prizePool(uint256 prizeId) external view returns (bytes32, uint256, uint256, uint256, bool);
+
+    /// @notice The total prizes claimed from the prize draw.
+    function claimedPrizes(address prizeDraw) external view returns (uint256);
+
+    /// @notice The total prizes locked in the prize draw.
+    function lockedPrizes(address prizeDraw) external view returns (uint256);
+
+    /// @notice The total prizes claimed from the prize draw.
+    function totalPrizesClaimed() external view returns (uint256);
+
+    /// @notice The total prizes locked in the prize draw.
+    function totalPrizesLocked() external view returns (uint256);
 
     /// @notice The current prize ID.
     function currentPrizeId() external view returns (uint256);
@@ -88,4 +100,7 @@ interface IAmpleEarn is IERC4626, IEulerEarnStaticTyping {
         PrizePoolMerkleLeaf memory merkleLeaf,
         bytes32[] calldata merkleProof
     ) external;
+
+    /// @notice Get the current prize amount.
+    function getCurrentPrizeAmount() external view returns (uint256);
 }

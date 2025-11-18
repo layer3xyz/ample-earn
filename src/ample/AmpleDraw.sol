@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity 0.8.26;
 
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
 import {VRFV2PlusClient} from "chainlink-brownie-contracts/v0.8/dev/vrf/libraries/VRFV2PlusClient.sol";
 import {VRFConsumerBaseV2Plus} from "chainlink-brownie-contracts/v0.8/dev/vrf/VRFConsumerBaseV2Plus.sol";
 
@@ -28,6 +31,8 @@ import {AmpleEventsLib} from "./libraries/AmpleEventsLib.sol";
 /// @custom:contact security@ample.money
 /// @notice A contract for drawing prizes from a vault using a VRF
 contract AmpleDraw is IAmpleDraw, VRFConsumerBaseV2Plus {
+    using SafeERC20 for IERC20;
+
     /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
     /*                         IMMUTABLES                         */
     /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
@@ -76,14 +81,6 @@ contract AmpleDraw is IAmpleDraw, VRFConsumerBaseV2Plus {
     /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
 
     /// @inheritdoc IAmpleDraw
-    function redeemPrize(address to, uint256 prize) external onlyAmpleEarn {
-        uint256 assets = AMPLE_EARN.previewRedeem(prize);
-        AMPLE_EARN.redeem(assets, to, address(this));
-
-        emit AmpleEventsLib.RedeemPrize(to, prize);
-    }
-
-    /// @inheritdoc IAmpleDraw
     function requestDraw(uint256 prizeId, bool nativePayment) external onlyAmpleEarn returns (uint256 requestId) {
         (,, uint256 winningTicketId,,) = AMPLE_EARN.prizePool(prizeId);
         if (winningTicketId != 0) revert AmpleErrorsLib.WinningTicketIdAlreadySet();
@@ -101,6 +98,13 @@ contract AmpleDraw is IAmpleDraw, VRFConsumerBaseV2Plus {
         requests[requestId] = prizeId;
 
         emit AmpleEventsLib.PrizeDrawRequested(requestId, prizeId);
+    }
+
+    /// @inheritdoc IAmpleDraw
+    function safeTransferPrize(address to, uint256 prize) external onlyAmpleEarn {
+        IERC20(address(AMPLE_EARN)).safeTransfer(to, prize);
+
+        emit AmpleEventsLib.RedeemPrize(to, prize);
     }
 
     /// @inheritdoc IAmpleDraw
@@ -125,7 +129,7 @@ contract AmpleDraw is IAmpleDraw, VRFConsumerBaseV2Plus {
 
         // We revert here because our backend should have some logic to ensure the twab
         // is not 0 in order to perform the draw.
-        (,, uint256 space,,) = AMPLE_EARN.prizePool(prizeId);
+        (, uint256 space,,,) = AMPLE_EARN.prizePool(prizeId);
         if (space == 0) revert AmpleErrorsLib.EmptySpace();
 
         // Best practice from docs: modulo to fit a range (1..space)

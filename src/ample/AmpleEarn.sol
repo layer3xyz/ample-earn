@@ -38,10 +38,22 @@ contract AmpleEarn is EulerEarn, IAmpleEarn {
     address public prizeDraw;
 
     /// @inheritdoc IAmpleEarn
-    mapping(address => bool) public isPrizekeeper;
+    mapping(address account => bool isPrizekeeper) public isPrizekeeper;
 
     /// @inheritdoc IAmpleEarn
-    mapping(uint256 => PrizePool) public prizePool;
+    mapping(uint256 prizeId => PrizePool prizePool) public prizePool;
+
+    /// @inheritdoc IAmpleEarn
+    mapping(address prizeDraw => uint256 totalClaimed) public claimedPrizes;
+
+    /// @inheritdoc IAmpleEarn
+    mapping(address prizeDraw => uint256 totalLocked) public lockedPrizes;
+
+    /// @inheritdoc IAmpleEarn
+    uint256 public totalPrizesClaimed;
+
+    /// @inheritdoc IAmpleEarn
+    uint256 public totalPrizesLocked;
 
     /// @inheritdoc IAmpleEarn
     uint256 public currentPrizeId;
@@ -146,16 +158,28 @@ contract AmpleEarn is EulerEarn, IAmpleEarn {
     {
         if (merkleRoot == bytes32(0)) revert AmpleErrorsLib.MerkleRootEmpty();
         if (prizePool[currentPrizeId].merkleRoot != bytes32(0)) revert AmpleErrorsLib.AlreadySet();
-        if (balanceOf(prizeDraw) == 0) revert AmpleErrorsLib.ZeroPrize();
         if (totalTwab == 0) revert AmpleErrorsLib.ZeroTwab();
 
         _accrueInterest();
 
+        if (_calculateAccruedInterestInPrizeDraw() == 0) revert AmpleErrorsLib.ZeroPrize();
+
         // uint256 prize = prizePool[currentPrizeId].prize;
         // TODO: Edge case, check lostAssets
         // require(prize == accumulatedFees, "INSUFFICIENT_FEES");
+
         prizePool[currentPrizeId].merkleRoot = merkleRoot;
         prizePool[currentPrizeId].totalTwab = totalTwab;
+
+        uint256 accruedInterestInPrizeDraw = _calculateAccruedInterestInPrizeDraw();
+        prizePool[currentPrizeId].prize = accruedInterestInPrizeDraw;
+
+        // Update global state
+        totalPrizesLocked += accruedInterestInPrizeDraw;
+
+        // Update prize draw state
+        lockedPrizes[prizeDraw] += accruedInterestInPrizeDraw;
+
         currentPrizeId++;
 
         emit AmpleEventsLib.SetMerkleRoot(currentPrizeId - 1, merkleRoot, totalTwab);
@@ -204,9 +228,30 @@ contract AmpleEarn is EulerEarn, IAmpleEarn {
 
         prizePool[prizeId].claimed = true;
 
+        // Update prize draw state
+        claimedPrizes[prizeDraw] += prizePool[prizeId].prize;
+        lockedPrizes[prizeDraw] -= prizePool[prizeId].prize;
+
+        // Update global state
+        totalPrizesClaimed += prizePool[prizeId].prize;
+        totalPrizesLocked -= prizePool[prizeId].prize;
+
         emit AmpleEventsLib.ClaimPrize(msgSender, to, prizePool[prizeId].prize);
 
         // Withdraw prize from Euler vault
-        IAmpleDraw(prizeDraw).redeemPrize(to, prizePool[prizeId].prize);
+        IAmpleDraw(prizeDraw).safeTransferPrize(to, prizePool[prizeId].prize);
+    }
+
+    /// @inheritdoc IAmpleEarn
+    function getCurrentPrizeAmount() external view returns (uint256 prizeAmount) {
+        prizeAmount = _calculateAccruedInterestInPrizeDraw();
+    }
+
+    /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
+    /*                          INTERNAL                          */
+    /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
+
+    function _calculateAccruedInterestInPrizeDraw() internal view returns (uint256) {
+        return balanceOf(prizeDraw) - lockedPrizes[prizeDraw] - claimedPrizes[prizeDraw];
     }
 }
