@@ -13,6 +13,7 @@ library BerachainConfig {
             evc: 0x45334608ECE7B2775136bC847EB92B5D332806A9,
             permit2: 0x000000000022D473030F116dDEE9F6B43aC78BA3,
             evkFactoryPerspective: 0xEE0CA74F3c60B7e1366e6d64AE2426E5177145cf,
+            eulerEarnFactory: 0x9cbc3030e6d133D1AAa148D598FD82D70263495c,
             // Chainlink VRF V2.5: https://vrf.chain.link/
             vrfCoordinator: 0x0000000000000000000000000000000000000000, // TODO: Add VRF Coordinator address
             vrfConfig: VRFConfig({

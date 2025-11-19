@@ -33,10 +33,33 @@ import {
 } from "openzeppelin-contracts/token/ERC20/extensions/ERC4626.sol";
 import {EVCUtil} from "ethereum-vault-connector/utils/EVCUtil.sol";
 
+/*
+                                   /$$          
+                                  | $$          
+  /$$$$$$  /$$$$$$/$$$$   /$$$$$$ | $$  /$$$$$$ 
+ |____  $$| $$_  $$_  $$ /$$__  $$| $$ /$$__  $$
+  /$$$$$$$| $$ \ $$ \ $$| $$  \ $$| $$| $$$$$$$$
+ /$$__  $$| $$ | $$ | $$| $$  | $$| $$| $$_____/
+|  $$$$$$$| $$ | $$ | $$| $$$$$$$/| $$|  $$$$$$$
+ \_______/|__/ |__/ |__/| $$____/ |__/ \_______/
+                        | $$                    
+                        | $$                    
+                        |__/                    
+*/
+
+/*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
+/*                          CHANGELOG                         */
+/*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
+/*                                                            */
+/* - 2025-11-19: Added factory parameter to constructor       */
+/*                                                            */
+/*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
+
 /// @title EulerEarn
-/// @author Forked with gratitude from Morpho Labs. Inspired by Silo Labs.
+/// @author Forked with gratitude from Euler Labs & Morpho Labs. Inspired by Silo Labs.
 /// @custom:contact security@morpho.org
 /// @custom:contact security@euler.xyz
+/// @custom:contact security@ample.money
 /// @notice ERC4626 compliant vault allowing users to deposit assets to any ERC4626 strategy vault allowed by the factory.
 contract EulerEarn is ReentrancyGuard, ERC4626, Ownable2Step, EVCUtil, IEulerEarnStaticTyping {
     using Math for uint256;
@@ -109,6 +132,7 @@ contract EulerEarn is ReentrancyGuard, ERC4626, Ownable2Step, EVCUtil, IEulerEar
     /* CONSTRUCTOR */
 
     /// @dev Initializes the contract.
+    /// @param factory The address of the factory contract.
     /// @param owner The owner of the contract.
     /// @param evc The EVC address.
     /// @param permit2 The address of the Permit2 contract.
@@ -119,6 +143,7 @@ contract EulerEarn is ReentrancyGuard, ERC4626, Ownable2Step, EVCUtil, IEulerEar
     /// @dev We pass "" as name and symbol to the ERC20 because these are overriden in this contract.
     /// This means that the contract deviates slightly from the ERC2612 standard.
     constructor(
+        address factory,
         address owner,
         address evc,
         address permit2,
@@ -137,7 +162,7 @@ contract EulerEarn is ReentrancyGuard, ERC4626, Ownable2Step, EVCUtil, IEulerEar
         emit EventsLib.SetSymbol(__symbol);
 
         permit2Address = permit2;
-        creator = msg.sender;
+        creator = factory;
     }
 
     /* MODIFIERS */

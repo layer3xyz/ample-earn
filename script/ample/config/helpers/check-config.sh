@@ -62,6 +62,7 @@ check_chain() {
 
     local euler_evc=$(jq -r '.evc // empty' "$core_file")
     local euler_permit2=$(jq -r '.permit2 // empty' "$core_file")
+    local euler_factory=$(jq -r '.eulerEarnFactory // empty' "$core_file")
     local euler_perspective=""
 
     if [[ -f "$periphery_file" ]]; then
@@ -82,6 +83,7 @@ check_chain() {
     local config_evc=$(grep -oE 'evc: (address\()?0x[0-9a-fA-F]{40}' "$config_path" | grep -oE '0x[0-9a-fA-F]{40}' | head -1 || echo "")
     local config_permit2=$(grep -oE 'permit2: (address\()?0x[0-9a-fA-F]{40}' "$config_path" | grep -oE '0x[0-9a-fA-F]{40}' | head -1 || echo "")
     local config_perspective=$(grep -oE 'evkFactoryPerspective: (address\()?0x[0-9a-fA-F]{40}' "$config_path" | grep -oE '0x[0-9a-fA-F]{40}' | head -1 || echo "")
+    local config_factory=$(grep -oE 'eulerEarnFactory: (address\()?0x[0-9a-fA-F]{40}' "$config_path" | grep -oE '0x[0-9a-fA-F]{40}' | head -1 || echo "")
 
     # Check for zero addresses
     if [[ "$config_evc" == "0x0000000000000000000000000000000000000000" ]]; then
@@ -89,6 +91,9 @@ check_chain() {
     fi
     if [[ "$config_perspective" == "0x0000000000000000000000000000000000000000" ]]; then
         config_perspective=""
+    fi
+    if [[ "$config_factory" == "0x0000000000000000000000000000000000000000" ]]; then
+        config_factory=""
     fi
 
     # Track status for this chain
@@ -147,6 +152,27 @@ check_chain() {
     else
         echo -e "    Config:  ${RED}$config_perspective${NC}"
         echo -e "    Euler:   ${GREEN}$euler_perspective${NC}"
+        echo -e "    Diff:    ${YELLOW}Addresses don't match!${NC}"
+        echo -e "    Status:  ${RED}✗ MISMATCH${NC}"
+        has_mismatch=true
+    fi
+
+    # Compare and display Euler Earn Factory
+    echo -e "  ${CYAN}Euler Earn Factory:${NC}"
+    if [[ -z "$euler_factory" ]]; then
+        echo -e "    Euler:   ${YELLOW}Not available${NC}"
+        echo -e "    Status:  ${YELLOW}⚠ SKIPPED${NC}"
+    elif [[ -z "$config_factory" ]]; then
+        echo -e "    Config:  ${RED}NOT SET${NC}"
+        echo -e "    Euler:   ${GREEN}$euler_factory${NC}"
+        echo -e "    Status:  ${YELLOW}⚠ NEEDS UPDATE${NC}"
+        needs_update=true
+    elif [[ "$config_factory" == "$euler_factory" ]]; then
+        echo -e "    Config:  ${GREEN}$config_factory${NC}"
+        echo -e "    Status:  ${GREEN}✓ VALID${NC}"
+    else
+        echo -e "    Config:  ${RED}$config_factory${NC}"
+        echo -e "    Euler:   ${GREEN}$euler_factory${NC}"
         echo -e "    Diff:    ${YELLOW}Addresses don't match!${NC}"
         echo -e "    Status:  ${RED}✗ MISMATCH${NC}"
         has_mismatch=true

@@ -39,6 +39,7 @@ contract AmpleEarnFactoryTest is IntegrationTest {
         bytes32 initCodeHash = hashInitCode(
             type(AmpleEarn).creationCode,
             abi.encode(
+                address(ampleEarnFactory),
                 initialOwner,
                 address(evc),
                 address(permit2),

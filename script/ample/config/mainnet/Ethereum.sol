@@ -13,6 +13,7 @@ library EthereumConfig {
             evc: 0x0C9a3dd6b8F28529d72d7f9cE918D493519EE383,
             permit2: 0x000000000022D473030F116dDEE9F6B43aC78BA3,
             evkFactoryPerspective: 0xB30f23bc5F93F097B3A699f71B0b1718Fc82e182,
+            eulerEarnFactory: 0x59709B029B140C853FE28d277f83C3a65e308aF4,
             // Chainlink VRF V2.5: https://vrf.chain.link/
             vrfCoordinator: 0x0000000000000000000000000000000000000000, // TODO: Add VRF Coordinator address
             vrfConfig: VRFConfig({

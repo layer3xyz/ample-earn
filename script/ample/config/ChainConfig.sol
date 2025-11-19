@@ -27,6 +27,7 @@ struct ChainConfig {
     address evc;
     address permit2;
     address evkFactoryPerspective;
+    address eulerEarnFactory;
     // Chainlink VRF: https://vrf.chain.link/
     address vrfCoordinator;
     VRFConfig vrfConfig;

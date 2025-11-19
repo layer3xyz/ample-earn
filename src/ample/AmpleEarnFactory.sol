@@ -114,6 +114,7 @@ contract AmpleEarnFactory is Ownable, EVCUtil, IAmpleEarnFactory {
         ampleEarn = IAmpleEarn(
             address(
                 new AmpleEarn{salt: salt}(
+                    address(this),
                     initialOwner,
                     address(evc),
                     permit2Address,

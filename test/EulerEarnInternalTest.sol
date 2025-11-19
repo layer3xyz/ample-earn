@@ -16,7 +16,7 @@ contract EulerEarnInternalTest is BaseTest {
         super.setUp();
 
         eulerEarnMock =
-            new EulerEarnMock(OWNER, address(evc), permit2, 1 days, address(loanToken), "EulerEarn Vault", "EEV");
+            new EulerEarnMock(address(this), OWNER, address(evc), permit2, 1 days, address(loanToken), "EulerEarn Vault", "EEV");
 
         vm.startPrank(OWNER);
         eulerEarnMock.setCurator(CURATOR);

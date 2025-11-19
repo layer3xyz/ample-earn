@@ -31,7 +31,7 @@ contract EulerEarnFactoryTest is IntegrationTest {
 
         bytes32 initCodeHash = hashInitCode(
             type(EulerEarn).creationCode,
-            abi.encode(initialOwner, address(evc), address(permit2), initialTimelock, address(loanToken), name, symbol)
+            abi.encode(address(eeFactory), initialOwner, address(evc), address(permit2), initialTimelock, address(loanToken), name, symbol)
         );
         address expectedAddress = computeCreate2Address(salt, initCodeHash, address(eeFactory));
 

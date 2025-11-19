@@ -5,6 +5,7 @@ import "../../src/EulerEarn.sol";
 
 contract EulerEarnMock is EulerEarn {
     constructor(
+        address factory,
         address owner,
         address evc,
         address permit2,
@@ -12,7 +13,7 @@ contract EulerEarnMock is EulerEarn {
         address _asset,
         string memory __name,
         string memory __symbol
-    ) EulerEarn(owner, evc, permit2, initialTimelock, _asset, __name, __symbol) {}
+    ) EulerEarn(factory, owner, evc, permit2, initialTimelock, _asset, __name, __symbol) {}
 
     function mockSetCap(IERC4626 id, uint136 supplyCap) external {
         _setCap(id, supplyCap);

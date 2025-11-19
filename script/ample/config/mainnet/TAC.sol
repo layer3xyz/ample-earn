@@ -13,6 +13,7 @@ library TACConfig {
             evc: 0x01F594c66A5561b90Bc782dD0297f294cD668b64,
             permit2: 0x000000000022D473030F116dDEE9F6B43aC78BA3,
             evkFactoryPerspective: 0xC194A7A86592C712BC155979A233B3d6F00e604a,
+            eulerEarnFactory: 0x7670572aa76E6140400A948e7AAFAB0210a86d9f,
             // Chainlink VRF V2.5: https://vrf.chain.link/
             vrfCoordinator: 0x0000000000000000000000000000000000000000, // TODO: Add VRF Coordinator address
             vrfConfig: VRFConfig({

@@ -13,6 +13,7 @@ library LineaConfig {
             evc: 0xd8CeCEe9A04eA3d941a959F68fb4486f23271d09,
             permit2: 0x000000000022D473030F116dDEE9F6B43aC78BA3,
             evkFactoryPerspective: 0x832ca1e2FCBedf717b9C71C00Dd26805e3bE4270,
+            eulerEarnFactory: 0x377879A039343FEc7564e54616e519328951DA6D,
             // Chainlink VRF V2.5: https://vrf.chain.link/
             vrfCoordinator: 0x0000000000000000000000000000000000000000, // TODO: Add VRF Coordinator address
             vrfConfig: VRFConfig({

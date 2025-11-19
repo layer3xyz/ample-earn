@@ -13,10 +13,33 @@ import {EulerEarn} from "./EulerEarn.sol";
 import {Ownable, Context} from "openzeppelin-contracts/access/Ownable.sol";
 import {EVCUtil} from "ethereum-vault-connector/utils/EVCUtil.sol";
 
+/*
+                                   /$$          
+                                  | $$          
+  /$$$$$$  /$$$$$$/$$$$   /$$$$$$ | $$  /$$$$$$ 
+ |____  $$| $$_  $$_  $$ /$$__  $$| $$ /$$__  $$
+  /$$$$$$$| $$ \ $$ \ $$| $$  \ $$| $$| $$$$$$$$
+ /$$__  $$| $$ | $$ | $$| $$  | $$| $$| $$_____/
+|  $$$$$$$| $$ | $$ | $$| $$$$$$$/| $$|  $$$$$$$
+ \_______/|__/ |__/ |__/| $$____/ |__/ \_______/
+                        | $$                    
+                        | $$                    
+                        |__/                    
+*/
+
+/*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
+/*                          CHANGELOG                         */
+/*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
+/*                                                            */
+/* - 2025-11-19: Added factory parameter to EulerEarn         */
+/*                                                            */
+/*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
+
 /// @title EulerEarnFactory
-/// @author Forked with gratitude from Morpho Labs. Inspired by Silo Labs.
+/// @author Forked with gratitude from Euler Labs & Morpho Labs. Inspired by Silo Labs.
 /// @custom:contact security@morpho.org
 /// @custom:contact security@euler.xyz
+/// @custom:contact security@ample.money
 /// @notice This contract allows to create EulerEarn vaults, and to index them easily.
 contract EulerEarnFactory is Ownable, EVCUtil, IEulerEarnFactory {
     /* IMMUTABLES */
@@ -98,7 +121,7 @@ contract EulerEarnFactory is Ownable, EVCUtil, IEulerEarnFactory {
         eulerEarn = IEulerEarn(
             address(
                 new EulerEarn{salt: salt}(
-                    initialOwner, address(evc), permit2Address, initialTimelock, asset, name, symbol
+                    address(this), initialOwner, address(evc), permit2Address, initialTimelock, asset, name, symbol
                 )
             )
         );

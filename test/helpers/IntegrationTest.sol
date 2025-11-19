@@ -55,7 +55,7 @@ contract IntegrationTest is BaseTest {
         string memory symbol
     ) public returns (IEulerEarn) {
         return IEulerEarn(
-            deployCode("EulerEarn.sol", abi.encode(owner, evc, permit2, initialTimelock, asset, name, symbol))
+            deployCode("EulerEarn.sol", abi.encode(address(eeFactory), owner, evc, permit2, initialTimelock, asset, name, symbol))
         );
     }
 

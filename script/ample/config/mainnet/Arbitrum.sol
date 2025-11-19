@@ -13,6 +13,7 @@ library ArbitrumConfig {
             evc: 0x6302ef0F34100CDDFb5489fbcB6eE1AA95CD1066,
             permit2: 0x000000000022D473030F116dDEE9F6B43aC78BA3,
             evkFactoryPerspective: 0x03a931446F5A7e7ec1D850D8eaF95Ab68Ad9089C,
+            eulerEarnFactory: 0xB9B5d62B9fE9E1B505466e75817aB178A1D2ec9d,
             // Chainlink VRF V2.5: https://vrf.chain.link/
             vrfCoordinator: 0xd5D517aBE5cF79B7e95eC98dB0f0277788aFF634,
             vrfConfig: VRFConfig({

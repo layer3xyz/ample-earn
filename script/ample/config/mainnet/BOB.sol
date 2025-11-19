@@ -13,6 +13,7 @@ library BOBConfig {
             evc: 0x59f0FeEc4fA474Ad4ffC357cC8d8595B68abE47d,
             permit2: 0xCbe9Be2C87b24b063A21369b6AB0Aa9f149c598F,
             evkFactoryPerspective: 0x05B98f64A31A33666cC9D2B32046a6Ca42699823,
+            eulerEarnFactory: 0x8F01c6640A1c0a6085C79843F861fF0F89b9fED6,
             // Chainlink VRF V2.5: https://vrf.chain.link/
             vrfCoordinator: 0x0000000000000000000000000000000000000000, // TODO: Add VRF Coordinator address
             vrfConfig: VRFConfig({

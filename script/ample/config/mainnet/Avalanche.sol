@@ -13,6 +13,7 @@ library AvalancheConfig {
             evc: 0xddcbe30A761Edd2e19bba930A977475265F36Fa1,
             permit2: 0x000000000022D473030F116dDEE9F6B43aC78BA3,
             evkFactoryPerspective: 0x4247432b4f9c32e99ecC2Ff7bAdd98783EecFA6F,
+            eulerEarnFactory: 0x574B00f5a0C56D370F19fa887a5545d74F52fAC2,
             // Chainlink VRF V2.5: https://vrf.chain.link/
             vrfCoordinator: 0x0000000000000000000000000000000000000000, // TODO: Add VRF Coordinator address
             vrfConfig: VRFConfig({

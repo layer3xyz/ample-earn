@@ -13,6 +13,7 @@ library SwellConfig {
             evc: 0x08739CBede6E28E387685ba20e6409bD16969Cde,
             permit2: 0x000000000022D473030F116dDEE9F6B43aC78BA3,
             evkFactoryPerspective: 0x96070bE9d3dFb045c6C96D35CeCc70Aa2940c756,
+            eulerEarnFactory: 0x3073e1B42f8Cc933f2d678DdA10acDE51F4E49a3,
             // Chainlink VRF V2.5: https://vrf.chain.link/
             vrfCoordinator: 0x0000000000000000000000000000000000000000, // TODO: Add VRF Coordinator address
             vrfConfig: VRFConfig({

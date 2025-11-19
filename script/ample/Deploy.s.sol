@@ -5,7 +5,6 @@ import {console} from "forge-std/console.sol";
 import {BaseScript} from "./BaseScript.s.sol";
 
 // Contracts
-import {AmpleEarnFactory} from "../../src/ample/AmpleEarnFactory.sol";
 import {VRFConfig} from "../../src/ample/interfaces/IAmpleDraw.sol";
 import {AmpleEarn} from "../../src/ample/AmpleEarn.sol";
 import {AmpleDraw} from "../../src/ample/AmpleDraw.sol";
@@ -55,7 +54,6 @@ import {UnichainConfig} from "./config/mainnet/Unichain.sol";
 ///        - VRF_SUBSCRIPTION_ID: Chainlink VRF subscription ID (required if CREATE_VAULT=true)
 contract DeployScript is BaseScript {
     // Factory deployment addresses
-    AmpleEarnFactory public factory;
     AmpleEarn public vault;
     AmpleDraw public prizeDraw;
 
@@ -68,6 +66,7 @@ contract DeployScript is BaseScript {
         console.log("EVC:", config.evc);
         console.log("Permit2:", config.permit2);
         console.log("EVK Factory Perspective:", config.evkFactoryPerspective);
+        console.log("Euler Earn Factory:", config.eulerEarnFactory);
 
         console.log("\nVerify protocol addresses here: https://docs.euler.finance/developers/contract-addresses/");
         console.log("Alternatively, use the following command to verify: `just check-config`");
@@ -122,6 +121,7 @@ contract DeployScript is BaseScript {
         console.log("Timelock:", timelock);
 
         vault = new AmpleEarn(
+            config.eulerEarnFactory,
             vaultOwner,
             config.evc,
             config.permit2,

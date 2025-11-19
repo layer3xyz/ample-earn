@@ -13,6 +13,7 @@ library PlasmaConfig {
             evc: 0x7bdbd0A7114aA42CA957F292145F6a931a345583,
             permit2: 0x000000000022D473030F116dDEE9F6B43aC78BA3,
             evkFactoryPerspective: 0xAEA0DE17C8B1BE60B2949B7F17482EBe681F93DF,
+            eulerEarnFactory: 0xA3843A73e6a9F81309B931237Ca4759B3B02ff0E,
             // Chainlink VRF V2.5: https://vrf.chain.link/
             vrfCoordinator: 0x0000000000000000000000000000000000000000, // TODO: Add VRF Coordinator address
             vrfConfig: VRFConfig({

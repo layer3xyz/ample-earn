@@ -13,6 +13,7 @@ library UnichainConfig {
             evc: 0x2A1176964F5D7caE5406B627Bf6166664FE83c60,
             permit2: 0x000000000022D473030F116dDEE9F6B43aC78BA3,
             evkFactoryPerspective: 0x5A2164C500f4FD26AB037d97A3ed5d0774446c6B,
+            eulerEarnFactory: 0xD785adD5F081F56616898E45b90dE307e3DC7d3E,
             // Chainlink VRF V2.5: https://vrf.chain.link/
             vrfCoordinator: 0x0000000000000000000000000000000000000000, // TODO: Add VRF Coordinator address
             vrfConfig: VRFConfig({

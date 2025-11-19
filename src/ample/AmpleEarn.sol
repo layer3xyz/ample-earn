@@ -73,6 +73,7 @@ contract AmpleEarn is EulerEarn, IAmpleEarn {
     /// @dev We pass "" as name and symbol to the ERC20 because these are overriden in this contract.
     /// This means that the contract deviates slightly from the ERC2612 standard.
     constructor(
+        address factory,
         address owner,
         address evc,
         address permit2,
@@ -82,7 +83,7 @@ contract AmpleEarn is EulerEarn, IAmpleEarn {
         string memory __symbol,
         address vrfCoordinator,
         VRFConfig memory vrfConfig
-    ) EulerEarn(owner, evc, permit2, initialTimelock, _asset, __name, __symbol) {
+    ) EulerEarn(factory, owner, evc, permit2, initialTimelock, _asset, __name, __symbol) {
         prizeDraw = address(new AmpleDraw(this, vrfCoordinator, vrfConfig));
         emit AmpleEventsLib.SetPrizeDraw(prizeDraw);
 

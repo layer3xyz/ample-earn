@@ -62,6 +62,7 @@ update_chain() {
 
     local euler_evc=$(jq -r '.evc // empty' "$core_file")
     local euler_permit2=$(jq -r '.permit2 // empty' "$core_file")
+    local euler_factory=$(jq -r '.eulerEarnFactory // empty' "$core_file")
     local euler_perspective=""
 
     if [[ -f "$periphery_file" ]]; then
@@ -84,6 +85,7 @@ update_chain() {
     local config_evc=$(grep -oE 'evc: (address\()?0x[0-9a-fA-F]{40}' "$config_path" | grep -oE '0x[0-9a-fA-F]{40}' | head -1 || echo "")
     local config_permit2=$(grep -oE 'permit2: (address\()?0x[0-9a-fA-F]{40}' "$config_path" | grep -oE '0x[0-9a-fA-F]{40}' | head -1 || echo "")
     local config_perspective=$(grep -oE 'evkFactoryPerspective: (address\()?0x[0-9a-fA-F]{40}' "$config_path" | grep -oE '0x[0-9a-fA-F]{40}' | head -1 || echo "")
+    local config_factory=$(grep -oE 'eulerEarnFactory: (address\()?0x[0-9a-fA-F]{40}' "$config_path" | grep -oE '0x[0-9a-fA-F]{40}' | head -1 || echo "")
 
     # Update EVC
     if [[ -n "$euler_evc" ]]; then
@@ -141,6 +143,26 @@ update_chain() {
             updated=true
         else
             echo -e "  ${GREEN}✓ Perspective already correct${NC}"
+        fi
+    fi
+
+    # Update Euler Earn Factory
+    if [[ -n "$euler_factory" ]]; then
+        if [[ -z "$config_factory" ]] || [[ "$config_factory" == "0x0000000000000000000000000000000000000000" ]] || grep -q 'eulerEarnFactory: address(0)' "$config_path"; then
+            echo -e "  ${YELLOW}Updating Euler Earn Factory...${NC}"
+            sed -i.bak "s|eulerEarnFactory: address(0)|eulerEarnFactory: $euler_factory|g" "$config_path"
+            sed -i.bak "s|eulerEarnFactory: 0x[0-9a-fA-F]*,|eulerEarnFactory: $euler_factory,|g" "$config_path"
+            echo -e "  ${GREEN}✓ Euler Earn Factory updated: ${YELLOW}NOT SET${GREEN} → ${CYAN}$euler_factory${NC}"
+            update_details+="    • Euler Earn Factory: NOT SET → $euler_factory\n"
+            updated=true
+        elif [[ "$config_factory" != "$euler_factory" ]]; then
+            echo -e "  ${YELLOW}Updating Euler Earn Factory (mismatch)...${NC}"
+            sed -i.bak "s|eulerEarnFactory: $config_factory|eulerEarnFactory: $euler_factory|g" "$config_path"
+            echo -e "  ${GREEN}✓ Euler Earn Factory updated: ${RED}$config_factory${GREEN} → ${CYAN}$euler_factory${NC}"
+            update_details+="    • Euler Earn Factory: $config_factory → $euler_factory\n"
+            updated=true
+        else
+            echo -e "  ${GREEN}✓ Euler Earn Factory already correct${NC}"
         fi
     fi
 

@@ -13,6 +13,7 @@ library MonadConfig {
             evc: 0x7a9324E8f270413fa2E458f5831226d99C7477CD,
             permit2: 0x000000000022D473030F116dDEE9F6B43aC78BA3,
             evkFactoryPerspective: 0x9266C8c71fDA44EcC7Df2A14E12C6E1aA9C96Ca7,
+            eulerEarnFactory: 0xF463d4Acb650cc6C4E1D6cD4D0d1b0cb224094cF,
             // Chainlink VRF V2.5: https://vrf.chain.link/
             vrfCoordinator: 0x0000000000000000000000000000000000000000, // TODO: Add VRF Coordinator address
             vrfConfig: VRFConfig({

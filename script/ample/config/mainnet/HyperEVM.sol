@@ -13,6 +13,7 @@ library HyperEVMConfig {
             evc: 0xceAA7cdCD7dDBee8601127a9Abb17A974d613db4,
             permit2: 0x000000000022D473030F116dDEE9F6B43aC78BA3,
             evkFactoryPerspective: 0x7bd1DADB012651606cE70210c9c4d4c94e2480a3,
+            eulerEarnFactory: 0x587DD8285c01526769aB4803e4F02433ddbBc00E,
             // Chainlink VRF V2.5: https://vrf.chain.link/
             vrfCoordinator: 0x0000000000000000000000000000000000000000, // TODO: Add VRF Coordinator address
             vrfConfig: VRFConfig({
