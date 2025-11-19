@@ -5,6 +5,9 @@
   "lib/ethereum-vault-connector": {
     "rev": "a7d3c29ef7e4964736e47675e0588630d6afbfd7"
   },
+  "lib/euler-interfaces": {
+    "rev": "0544c7a84ca34380a2e103c7c92a102952d18203"
+  },
   "lib/euler-vault-kit": {
     "rev": "5b98b42048ba11ae82fb62dfec06d1010c8e41e6"
   },

@@ -2,6 +2,7 @@
 pragma solidity >=0.8.26;
 
 import {Script} from "forge-std/Script.sol";
+import {StdChains} from "forge-std/StdChains.sol";
 import {console} from "forge-std/console.sol";
 
 abstract contract BaseScript is Script {
@@ -25,6 +26,9 @@ abstract contract BaseScript is Script {
     ///
     /// The use case for $DEPLOYER_ADDRESS is to specify the broadcaster key and its address via the command line.
     constructor() {
+        console.log(
+            string.concat("Deploying on Chain: ", StdChains.getChain(block.chainid).name, " (", vm.toString(block.chainid), ")")
+        );
         address from = vm.envOr({name: "DEPLOYER_ADDRESS", defaultValue: address(0)});
         if (from != address(0)) {
             broadcaster = from;
@@ -32,6 +36,9 @@ abstract contract BaseScript is Script {
         } else {
             console.log("!!! WARNING: No DEPLOYER_ADDRESS found in .env, using MNEMONIC !!!");
             mnemonic = vm.envOr({name: "MNEMONIC", defaultValue: TEST_MNEMONIC});
+            if (keccak256(bytes(mnemonic)) == keccak256(bytes(TEST_MNEMONIC))) {
+                console.log("!!! WARNING: Using TEST_MNEMONIC !!!");
+            }
             (broadcaster,) = deriveRememberKey({mnemonic: mnemonic, index: 0});
         }
     }

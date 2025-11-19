@@ -1,5 +1,6 @@
 # See https://just.systems/man/en/settings.html
 set shell := ["bash", "-euo", "pipefail", "-c"]
+set dotenv-load
 set unstable
 
 # ---------------------------------------------------------------------------- #
@@ -25,6 +26,12 @@ AMPLE_TEST_PATH := "test/ample/**/*.sol"
 # ---------------------------------------------------------------------------- #
 #                                     AMPLE                                    #
 # ---------------------------------------------------------------------------- #
+
+# Deploy Ample contracts (note: set RPC_URL in .env)
+[group("ample")]
+ample-deploy *args:
+    forge script script/ample/Deploy.s.sol --sig "run()" --rpc-url $RPC_URL {{ args }}
+alias ad := ample-deploy
 
 # Run all Ample tests
 [group("ample")]
@@ -188,29 +195,7 @@ update-config:
     @bash script/ample/config/helpers/update-config.sh
 alias uc := update-config
 
-# Deploy AmpleEarnFactory only
-[group("scripts")]
-deploy-factory *args:
-    forge script script/ample/Deploy.s.sol --sig "run()" {{ args }}
-alias df := deploy-factory
 
-# Deploy AmpleEarnFactory and create a vault
-[group("scripts")]
-deploy-vault *args:
-    CREATE_VAULT=true forge script script/ample/Deploy.s.sol --sig "run()" {{ args }}
-alias dv := deploy-vault
-
-# Deploy to local testnet
-[group("scripts")]
-deploy-local:
-    forge script script/ample/Deploy.s.sol --sig "run()" --fork-url http://localhost:8545 --broadcast
-alias dl := deploy-local
-
-# Deploy vault to local testnet
-[group("scripts")]
-deploy-vault-local:
-    CREATE_VAULT=true forge script script/ample/Deploy.s.sol --sig "run()" --fork-url http://localhost:8545 --broadcast
-alias dvl := deploy-vault-local
 
 # ---------------------------------------------------------------------------- #
 #                                    UTILITY                                   #

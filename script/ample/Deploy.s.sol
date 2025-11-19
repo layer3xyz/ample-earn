@@ -2,14 +2,13 @@
 pragma solidity >=0.8.26;
 
 import {console} from "forge-std/console.sol";
-import {StdChains} from "forge-std/StdChains.sol";
-
 import {BaseScript} from "./BaseScript.s.sol";
 
 // Contracts
 import {AmpleEarnFactory} from "../../src/ample/AmpleEarnFactory.sol";
-import {IAmpleEarn} from "../../src/ample/interfaces/IAmpleEarn.sol";
 import {VRFConfig} from "../../src/ample/interfaces/IAmpleDraw.sol";
+import {AmpleEarn} from "../../src/ample/AmpleEarn.sol";
+import {AmpleDraw} from "../../src/ample/AmpleDraw.sol";
 
 // Chain configs
 import {ChainConfig} from "./config/ChainConfig.sol";
@@ -57,86 +56,109 @@ import {UnichainConfig} from "./config/mainnet/Unichain.sol";
 contract DeployScript is BaseScript {
     // Factory deployment addresses
     AmpleEarnFactory public factory;
-    IAmpleEarn public vault;
+    AmpleEarn public vault;
+    AmpleDraw public prizeDraw;
 
-    function run() external broadcast {
+    function run() external broadcast returns (address ampleDraw, address ampleEarn) {
         console.log("\n=== Deploying Ample Money Contracts ===");
-        console.log(
-            string.concat("Chain: ", StdChains.getChain(block.chainid).name, " (", vm.toString(block.chainid), ")")
-        );
         console.log("Broadcaster:", broadcaster);
 
         ChainConfig memory config = _getChainConfig();
-        console.log("\n=== Protocol Config ===");
+        console.log("\n=== Euler Protocol Config ===");
         console.log("EVC:", config.evc);
         console.log("Permit2:", config.permit2);
         console.log("EVK Factory Perspective:", config.evkFactoryPerspective);
 
         console.log("\nVerify protocol addresses here: https://docs.euler.finance/developers/contract-addresses/");
+        console.log("Alternatively, use the following command to verify: `just check-config`");
+        console.log("Or, use this command to update the config: `just update-config`");
 
-        console.log("\n=== VRF Config ===");
+        console.log("\n=== Chainlink VRF Config ===");
+        console.log("VRF Subscription ID:", config.vrfConfig.subscriptionId);
         console.log("VRF Coordinator:", config.vrfCoordinator);
-        console.log("VRF Key Hash:");
-        console.logBytes32(config.vrfConfig.keyHash);
+        console.log("VRF Key Hash:", vm.toString(config.vrfConfig.keyHash));
         console.log("VRF Callback Gas Limit:", config.vrfConfig.callbackGasLimit);
         console.log("VRF Request Confirmations:", config.vrfConfig.requestConfirmations);
 
         console.log("\nVerify chainlink config here: https://vrf.chain.link/");
 
         // Deploy factory
-        _deployFactory(config);
+        // _deployFactory(config);
 
         // Optionally create a vault
-        if (vm.envOr("CREATE_VAULT", false)) {
-            _createVault();
-        }
+        // if (vm.envOr("CREATE_VAULT", true)) {
+        //     _createVault();
+        // }
+
+        _deployVault(config);
+
+        ampleDraw = vault.prizeDraw();
+        ampleEarn = address(vault);
 
         console.log("\n=== Deployment Complete ===\n");
     }
 
-    function _deployFactory(ChainConfig memory config) internal {
-        console.log("\n=== Deploying AmpleEarnFactory ===");
-        console.log("Factory Owner:", broadcaster);
-
-        factory = new AmpleEarnFactory(broadcaster, config.evc, config.permit2, config.evkFactoryPerspective);
-
-        console.log("AmpleEarnFactory deployed at:", address(factory));
-    }
-
-    function _createVault() internal {
-        console.log("\n--- Creating AmpleEarn Vault ---");
-
-        ChainConfig memory config = _getChainConfig();
+    function _deployVault(ChainConfig memory config) internal {
+        console.log("\n=== Deploying AmpleEarn Vault & AmpleDraw ===");
 
         address vaultOwner = vm.envOr("VAULT_OWNER", broadcaster);
-        uint256 timelock = vm.envOr("TIMELOCK", uint256(7 days));
+        uint256 timelock = vm.envOr("TIMELOCK", uint256(0));
         address asset = vm.envAddress("ASSET");
         string memory name = vm.envString("VAULT_NAME");
         string memory symbol = vm.envString("VAULT_SYMBOL");
 
-        console.log("Vault Owner:", vaultOwner);
-        console.log("Timelock:", timelock);
+        if (asset == address(0)) {
+            revert("Asset must be set in .env");
+        }
+
+        if (keccak256(bytes(name)) == keccak256(bytes("")) || keccak256(bytes(symbol)) == keccak256(bytes(""))) {
+            revert("Name and symbol must be set in .env");
+        }
+
+        console.log("Owner:", vaultOwner);
         console.log("Asset:", asset);
         console.log("Name:", name);
         console.log("Symbol:", symbol);
-        console.log("VRF Coordinator:", config.vrfCoordinator);
-        console.log("VRF Subscription ID:", config.vrfConfig.subscriptionId);
-        console.log("VRF Key Hash:");
-        console.logBytes32(config.vrfConfig.keyHash);
-        console.log("VRF Callback Gas Limit:", config.vrfConfig.callbackGasLimit);
-        console.log("VRF Request Confirmations:", config.vrfConfig.requestConfirmations);
+        console.log("Timelock:", timelock);
 
-        vault = factory.createAmpleEarn(
-            vaultOwner, timelock, asset, name, symbol, ZERO_SALT, config.vrfCoordinator, config.vrfConfig
+        vault = new AmpleEarn(
+            vaultOwner,
+            config.evc,
+            config.permit2,
+            timelock,
+            asset,
+            name,
+            symbol,
+            config.vrfCoordinator,
+            config.vrfConfig
         );
 
-        console.log("AmpleEarn vault deployed at:", address(vault));
-        console.log("AmpleDraw deployed at:", vault.prizeDraw());
+        prizeDraw = AmpleDraw(address(vault.prizeDraw()));
 
-        console.log("\n--- Vault Details ---");
+        console.log("\n=== AmpleEarn Details ===");
+        console.log("Owner:", AmpleEarn(address(vault)).owner());
         console.log("Asset:", vault.asset());
         console.log("Name:", vault.name());
         console.log("Symbol:", vault.symbol());
+        console.log("Timelock:", vault.timelock());
+        console.log("PrizeDraw:", address(prizeDraw));
+
+        console.log("\n=== AmpleDraw Details ===");
+
+        (uint256 subscriptionId, bytes32 keyHash, uint32 callbackGasLimit, uint16 requestConfirmations) =
+            prizeDraw.vrfConfig();
+
+        console.log("Owner:", prizeDraw.owner());
+        console.log("AmpleEarn:", address(prizeDraw.AMPLE_EARN()));
+        console.log("VRF Coordinator:", address(prizeDraw.s_vrfCoordinator()));
+        console.log("VRF Subscription ID:", subscriptionId);
+        console.log("VRF Key Hash:", vm.toString(keyHash));
+        console.log("VRF Callback Gas Limit:", callbackGasLimit);
+        console.log("VRF Request Confirmations:", requestConfirmations);
+
+        console.log("\n=== Deployed Contracts ===");
+        console.log("AmpleDraw:", address(prizeDraw));
+        console.log("AmpleEarn:", address(vault));
     }
 
     function _getChainConfig() internal view returns (ChainConfig memory) {
