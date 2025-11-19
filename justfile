@@ -46,6 +46,26 @@ ample-gas-report *args:
 alias agr := ample-gas-report
 
 # ---------------------------------------------------------------------------- #
+#                                AMPLE INTERACTIONS                            #
+# ---------------------------------------------------------------------------- #
+
+# Deposit assets to AmpleEarn (note: receiver defaults to broadcaster)
+[group("ample-interact")]
+deposit amount receiver="" *args:
+    AMOUNT={{amount}} RECEIVER={{receiver}}  forge script script/ample/contract/Public.s.sol --sig "deposit()" --rpc-url $RPC_URL {{ args }}
+alias dep := deposit
+
+# ---------------------------------------------------------------------------- #
+#                                AMPLE VIEWS                                   #
+# ---------------------------------------------------------------------------- #
+
+# Check interest generated on AmpleEarn
+[group("ample-view")]
+interest:
+    @bash script/ample/contract/views/interest.sh
+alias int := interest
+
+# ---------------------------------------------------------------------------- #
 #                                    FOUNDRY                                   #
 # ---------------------------------------------------------------------------- #
 

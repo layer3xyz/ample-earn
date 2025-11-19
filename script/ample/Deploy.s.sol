@@ -53,14 +53,10 @@ import {UnichainConfig} from "./config/mainnet/Unichain.sol";
 ///        - VAULT_SYMBOL: Symbol of the vault (e.g., "aUSDC")
 ///        - VRF_SUBSCRIPTION_ID: Chainlink VRF subscription ID (required if CREATE_VAULT=true)
 contract DeployScript is BaseScript {
-    // Factory deployment addresses
     AmpleEarn public vault;
     AmpleDraw public prizeDraw;
 
     function run() external broadcast returns (address ampleDraw, address ampleEarn) {
-        console.log("\n=== Deploying Ample Money Contracts ===");
-        console.log("Broadcaster:", broadcaster);
-
         ChainConfig memory config = _getChainConfig();
         console.log("\n=== Euler Protocol Config ===");
         console.log("EVC:", config.evc);

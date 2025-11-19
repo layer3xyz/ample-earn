@@ -1,5 +1,5 @@
 {
-  "workbench.colorTheme": "Solidity Visual Developer Dark",
+  "workbench.colorTheme": "Default Dark Modern",
   "wake.compiler.solc.remappings": [
     "openzeppelin-contracts/=lib/openzeppelin-contracts/contracts/",
     "ethereum-vault-connector/=lib/ethereum-vault-connector/src/",

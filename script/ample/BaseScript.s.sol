@@ -42,7 +42,7 @@ abstract contract BaseScript is Script {
     constructor() {
         console.log(
             string.concat(
-                "Deploying on Chain: ", StdChains.getChain(block.chainid).name, " (", vm.toString(block.chainid), ")"
+                "Broadcasting on Chain: ", StdChains.getChain(block.chainid).name, " (", vm.toString(block.chainid), ")"
             )
         );
         address from = vm.envOr({name: "DEPLOYER_ADDRESS", defaultValue: address(0)});

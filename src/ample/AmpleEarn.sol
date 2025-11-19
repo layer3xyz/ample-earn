@@ -254,6 +254,8 @@ contract AmpleEarn is EulerEarn, IAmpleEarn {
 
     /// @inheritdoc IAmpleEarn
     function getCurrentPrizeAmount() external view returns (uint256 prizeAmount) {
+        // TODO: Fix me, this does not get the current interest waiting to be claimed
+        // Perhaps the fix is to change the function name
         prizeAmount = _calculateAccruedInterestInPrizeDraw();
     }
 
