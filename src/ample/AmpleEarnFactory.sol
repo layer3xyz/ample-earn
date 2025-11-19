@@ -1,11 +1,16 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity 0.8.26;
 
-import {EulerEarnFactory} from "../EulerEarnFactory.sol";
+import {IPerspective} from "../interfaces/IPerspective.sol";
 
-import {IAmpleEarn} from "./interfaces/IAmpleEarn.sol";
-import {IAmpleEarnFactory, VRFConfig} from "./interfaces/IAmpleEarnFactory.sol";
+import {EventsLib} from "../libraries/EventsLib.sol";
+import {ErrorsLib} from "../libraries/ErrorsLib.sol";
+
+import {Ownable, Context} from "openzeppelin-contracts/access/Ownable.sol";
+import {EVCUtil} from "ethereum-vault-connector/utils/EVCUtil.sol";
+
 import {AmpleEventsLib} from "./libraries/AmpleEventsLib.sol";
+import {IAmpleEarnFactory, IAmpleEarn, VRFConfig} from "./interfaces/IAmpleEarnFactory.sol";
 import {AmpleEarn} from "./AmpleEarn.sol";
 
 /*
@@ -27,23 +32,73 @@ import {AmpleEarn} from "./AmpleEarn.sol";
 /// @custom:contact security@euler.xyz
 /// @custom:contact security@ample.money
 /// @notice This contract allows to create AmpleEarn vaults, and to index them easily.
-contract AmpleEarnFactory is EulerEarnFactory, IAmpleEarnFactory {
-    /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
-    /*                         CONSTRUCTOR                        */
-    /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
+contract AmpleEarnFactory is Ownable, EVCUtil, IAmpleEarnFactory {
+    /* IMMUTABLES */
+
+    /// @inheritdoc IAmpleEarnFactory
+    address public immutable permit2Address;
+
+    /* STORAGE */
+
+    /// @inheritdoc IAmpleEarnFactory
+    mapping(address => bool) public isVault;
+
+    /// @dev The list of all the vaults created by the factory.
+    address[] public vaultList;
+
+    /// @dev The perspective contract that is used to verify the strategies.
+    IPerspective internal perspective;
+
+    /* CONSTRUCTOR */
 
     /// @dev Initializes the contract.
     /// @param _owner The owner of the factory contract.
     /// @param _evc The address of the EVC contract.
     /// @param _permit2 The address of the Permit2 contract.
     /// @param _perspective The address of the supported perspective contract.
-    constructor(address _owner, address _evc, address _permit2, address _perspective)
-        EulerEarnFactory(_owner, _evc, _permit2, _perspective)
-    {}
+    constructor(address _owner, address _evc, address _permit2, address _perspective) Ownable(_owner) EVCUtil(_evc) {
+        if (_perspective == address(0)) revert ErrorsLib.ZeroAddress();
 
-    /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
-    /*                          EXTERNAL                          */
-    /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
+        permit2Address = _permit2;
+        perspective = IPerspective(_perspective);
+    }
+
+    /* EXTERNAL */
+
+    /// @inheritdoc IAmpleEarnFactory
+    function supportedPerspective() external view returns (address) {
+        return address(perspective);
+    }
+
+    /// @inheritdoc IAmpleEarnFactory
+    function getVaultListLength() external view returns (uint256) {
+        return vaultList.length;
+    }
+
+    /// @inheritdoc IAmpleEarnFactory
+    function getVaultListSlice(uint256 start, uint256 end) external view returns (address[] memory list) {
+        if (end == type(uint256).max) end = vaultList.length;
+        if (end < start || end > vaultList.length) revert ErrorsLib.BadQuery();
+
+        list = new address[](end - start);
+        for (uint256 i; i < end - start; ++i) {
+            list[i] = vaultList[start + i];
+        }
+    }
+
+    /// @inheritdoc IAmpleEarnFactory
+    function isStrategyAllowed(address id) external view returns (bool) {
+        return perspective.isVerified(id) || isVault[id];
+    }
+
+    /// @inheritdoc IAmpleEarnFactory
+    function setPerspective(address _perspective) public onlyEVCAccountOwner onlyOwner {
+        if (_perspective == address(0)) revert ErrorsLib.ZeroAddress();
+
+        perspective = IPerspective(_perspective);
+
+        emit EventsLib.SetPerspective(_perspective);
+    }
 
     /// @inheritdoc IAmpleEarnFactory
     function createAmpleEarn(
@@ -79,5 +134,13 @@ contract AmpleEarnFactory is EulerEarnFactory, IAmpleEarnFactory {
         emit AmpleEventsLib.CreateAmpleEarn(
             address(ampleEarn), _msgSender(), initialOwner, initialTimelock, asset, name, symbol, salt
         );
+    }
+
+    /// @notice Retrieves the message sender in the context of the EVC.
+    /// @dev This function returns the account on behalf of which the current operation is being performed, which is
+    /// either msg.sender or the account authenticated by the EVC.
+    /// @return The address of the message sender.
+    function _msgSender() internal view virtual override(EVCUtil, Context) returns (address) {
+        return EVCUtil._msgSender();
     }
 }

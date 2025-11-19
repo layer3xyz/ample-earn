@@ -139,10 +139,12 @@ contract AmpleEarn is EulerEarn, IAmpleEarn {
     /// @inheritdoc IAmpleEarn
     function drawWinner(uint256 prizeId, bool nativePayment) external nonReentrant onlyPrizekeeperRole {
         if (prizeId >= currentPrizeId) revert AmpleErrorsLib.PrizeIdInvalid();
-        if (prizePool[prizeId].merkleRoot == bytes32(0)) revert AmpleErrorsLib.MerkleRootNotSet();
-        if (prizePool[prizeId].totalTwab == 0) revert AmpleErrorsLib.ZeroTwab();
-        if (prizePool[prizeId].prize == 0) revert AmpleErrorsLib.ZeroPrize();
-        if (prizePool[prizeId].winningTicketId != 0) revert AmpleErrorsLib.WinningTicketIdAlreadySet();
+
+        PrizePool storage pool = prizePool[prizeId];
+        if (pool.merkleRoot == bytes32(0)) revert AmpleErrorsLib.MerkleRootNotSet();
+        if (pool.totalTwab == 0) revert AmpleErrorsLib.ZeroTwab();
+        if (pool.prize == 0) revert AmpleErrorsLib.ZeroPrize();
+        if (pool.winningTicketId != 0) revert AmpleErrorsLib.WinningTicketIdAlreadySet();
 
         emit AmpleEventsLib.DrawWinner(prizeId, nativePayment);
 
@@ -157,22 +159,23 @@ contract AmpleEarn is EulerEarn, IAmpleEarn {
         returns (uint256 prizeId)
     {
         if (merkleRoot == bytes32(0)) revert AmpleErrorsLib.MerkleRootEmpty();
-        if (prizePool[currentPrizeId].merkleRoot != bytes32(0)) revert AmpleErrorsLib.AlreadySet();
         if (totalTwab == 0) revert AmpleErrorsLib.ZeroTwab();
+        PrizePool storage pool = prizePool[currentPrizeId];
+        if (pool.merkleRoot != bytes32(0)) revert AmpleErrorsLib.AlreadySet();
 
         _accrueInterest();
 
-        if (_calculateAccruedInterestInPrizeDraw() == 0) revert AmpleErrorsLib.ZeroPrize();
+        uint256 accruedInterestInPrizeDraw = _calculateAccruedInterestInPrizeDraw();
+        if (accruedInterestInPrizeDraw == 0) revert AmpleErrorsLib.ZeroPrize();
 
         // uint256 prize = prizePool[currentPrizeId].prize;
         // TODO: Edge case, check lostAssets
         // require(prize == accumulatedFees, "INSUFFICIENT_FEES");
 
-        prizePool[currentPrizeId].merkleRoot = merkleRoot;
-        prizePool[currentPrizeId].totalTwab = totalTwab;
+        pool.merkleRoot = merkleRoot;
+        pool.totalTwab = totalTwab;
 
-        uint256 accruedInterestInPrizeDraw = _calculateAccruedInterestInPrizeDraw();
-        prizePool[currentPrizeId].prize = accruedInterestInPrizeDraw;
+        pool.prize = accruedInterestInPrizeDraw;
 
         // Update global state
         totalPrizesLocked += accruedInterestInPrizeDraw;
@@ -180,7 +183,9 @@ contract AmpleEarn is EulerEarn, IAmpleEarn {
         // Update prize draw state
         lockedPrizes[prizeDraw] += accruedInterestInPrizeDraw;
 
-        currentPrizeId++;
+        unchecked {
+            ++currentPrizeId;
+        }
 
         emit AmpleEventsLib.SetMerkleRoot(currentPrizeId - 1, merkleRoot, totalTwab);
 
@@ -190,9 +195,11 @@ contract AmpleEarn is EulerEarn, IAmpleEarn {
     /// @inheritdoc IAmpleEarn
     function setWinningTicketId(uint256 prizeId, uint256 winningTicketId) external {
         if (_msgSenderOnlyEVCAccountOwner() != address(prizeDraw)) revert AmpleErrorsLib.NotPrizeDrawRole();
-        if (prizePool[prizeId].merkleRoot == bytes32(0)) revert AmpleErrorsLib.MerkleRootNotSet();
-        if (prizePool[prizeId].winningTicketId != 0) revert AmpleErrorsLib.WinningTicketIdAlreadySet();
-        prizePool[prizeId].winningTicketId = winningTicketId;
+
+        PrizePool storage pool = prizePool[prizeId];
+        if (pool.merkleRoot == bytes32(0)) revert AmpleErrorsLib.MerkleRootNotSet();
+        if (pool.winningTicketId != 0) revert AmpleErrorsLib.WinningTicketIdAlreadySet();
+        pool.winningTicketId = winningTicketId;
 
         emit AmpleEventsLib.SetWinningTicketId(prizeId, winningTicketId);
     }
@@ -209,37 +216,39 @@ contract AmpleEarn is EulerEarn, IAmpleEarn {
         bytes32[] calldata merkleProof
     ) external nonReentrant {
         if (to == address(0)) revert AmpleErrorsLib.ZeroAddress();
-        if (prizePool[prizeId].merkleRoot == bytes32(0)) revert AmpleErrorsLib.MerkleRootNotSet();
+
+        PrizePool storage pool = prizePool[prizeId];
+        if (pool.merkleRoot == bytes32(0)) revert AmpleErrorsLib.MerkleRootNotSet();
 
         address msgSender = _msgSenderOnlyEVCAccountOwner();
 
         if (
-            msgSender != merkleLeaf.user || merkleLeaf.ticketEnd <= prizePool[prizeId].winningTicketId
-                || merkleLeaf.ticketStart > prizePool[prizeId].winningTicketId + prizePool[prizeId].totalTwab
+            msgSender != merkleLeaf.user || merkleLeaf.ticketEnd <= pool.winningTicketId
+                || merkleLeaf.ticketStart > pool.winningTicketId + pool.totalTwab
         ) revert AmpleErrorsLib.NotPrizeWinner();
 
-        if (prizePool[prizeId].claimed) revert AmpleErrorsLib.PrizeClaimed();
+        if (pool.claimed) revert AmpleErrorsLib.PrizeClaimed();
 
         bytes32 leaf =
             keccak256(abi.encode(merkleLeaf.user, merkleLeaf.twab, merkleLeaf.ticketStart, merkleLeaf.ticketEnd));
-        if (!MerkleProof.verify(merkleProof, prizePool[prizeId].merkleRoot, leaf)) {
+        if (!MerkleProof.verify(merkleProof, pool.merkleRoot, leaf)) {
             revert AmpleErrorsLib.MerkleProofInvalid();
         }
 
-        prizePool[prizeId].claimed = true;
+        pool.claimed = true;
 
         // Update prize draw state
-        claimedPrizes[prizeDraw] += prizePool[prizeId].prize;
-        lockedPrizes[prizeDraw] -= prizePool[prizeId].prize;
+        claimedPrizes[prizeDraw] += pool.prize;
+        lockedPrizes[prizeDraw] -= pool.prize;
 
         // Update global state
-        totalPrizesClaimed += prizePool[prizeId].prize;
-        totalPrizesLocked -= prizePool[prizeId].prize;
+        totalPrizesClaimed += pool.prize;
+        totalPrizesLocked -= pool.prize;
 
-        emit AmpleEventsLib.ClaimPrize(msgSender, to, prizePool[prizeId].prize);
+        emit AmpleEventsLib.ClaimPrize(msgSender, to, pool.prize);
 
         // Withdraw prize from Euler vault
-        IAmpleDraw(prizeDraw).safeTransferPrize(to, prizePool[prizeId].prize);
+        IAmpleDraw(prizeDraw).safeTransferPrize(to, pool.prize);
     }
 
     /// @inheritdoc IAmpleEarn
@@ -251,7 +260,7 @@ contract AmpleEarn is EulerEarn, IAmpleEarn {
     /*                          INTERNAL                          */
     /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
 
-    function _calculateAccruedInterestInPrizeDraw() internal view returns (uint256) {
-        return balanceOf(prizeDraw) - lockedPrizes[prizeDraw] - claimedPrizes[prizeDraw];
+    function _calculateAccruedInterestInPrizeDraw() internal view returns (uint256 currentAccruedInterest) {
+        currentAccruedInterest = balanceOf(prizeDraw) - lockedPrizes[prizeDraw] - claimedPrizes[prizeDraw];
     }
 }
