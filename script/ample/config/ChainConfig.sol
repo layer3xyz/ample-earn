@@ -3,6 +3,20 @@ pragma solidity >=0.8.26;
 
 import {VRFConfig} from "../../../src/ample/interfaces/IAmpleDraw.sol";
 
+/*
+                                   /$$
+                                  | $$
+  /$$$$$$  /$$$$$$/$$$$   /$$$$$$ | $$  /$$$$$$
+ |____  $$| $$_  $$_  $$ /$$__  $$| $$ /$$__  $$
+  /$$$$$$$| $$ \ $$ \ $$| $$  \ $$| $$| $$$$$$$$
+ /$$__  $$| $$ | $$ | $$| $$  | $$| $$| $$_____/
+|  $$$$$$$| $$ | $$ | $$| $$$$$$$/| $$|  $$$$$$$
+ \_______/|__/ |__/ |__/| $$____/ |__/ \_______/
+                        | $$
+                        | $$
+                        |__/
+*/
+
 uint32 constant DEFAULT_CALLBACK_GAS_LIMIT = 130_000; // TODO: Verify this
 
 /// @notice Chain-specific configuration for deployments

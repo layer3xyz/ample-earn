@@ -6,6 +6,20 @@ import {console} from "forge-std/console.sol";
 import {PrizePoolMerkleLeaf} from "../../src/ample/interfaces/IAmpleEarn.sol";
 import {MerkleHelper} from "../../test/ample/helpers/MerkleHelper.sol";
 
+/*
+                                   /$$
+                                  | $$
+  /$$$$$$  /$$$$$$/$$$$   /$$$$$$ | $$  /$$$$$$
+ |____  $$| $$_  $$_  $$ /$$__  $$| $$ /$$__  $$
+  /$$$$$$$| $$ \ $$ \ $$| $$  \ $$| $$| $$$$$$$$
+ /$$__  $$| $$ | $$ | $$| $$  | $$| $$| $$_____/
+|  $$$$$$$| $$ | $$ | $$| $$$$$$$/| $$|  $$$$$$$
+ \_______/|__/ |__/ |__/| $$____/ |__/ \_______/
+                        | $$
+                        | $$
+                        |__/
+*/
+
 contract GenerateMerkleRootScript is Script {
     function run() external pure {
         console.log("=== Generating Merkle Root with 3 Example Leaves ===\n");

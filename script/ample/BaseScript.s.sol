@@ -5,6 +5,20 @@ import {Script} from "forge-std/Script.sol";
 import {StdChains} from "forge-std/StdChains.sol";
 import {console} from "forge-std/console.sol";
 
+/*
+                                   /$$
+                                  | $$
+  /$$$$$$  /$$$$$$/$$$$   /$$$$$$ | $$  /$$$$$$
+ |____  $$| $$_  $$_  $$ /$$__  $$| $$ /$$__  $$
+  /$$$$$$$| $$ \ $$ \ $$| $$  \ $$| $$| $$$$$$$$
+ /$$__  $$| $$ | $$ | $$| $$  | $$| $$| $$_____/
+|  $$$$$$$| $$ | $$ | $$| $$$$$$$/| $$|  $$$$$$$
+ \_______/|__/ |__/ |__/| $$____/ |__/ \_______/
+                        | $$
+                        | $$
+                        |__/
+*/
+
 abstract contract BaseScript is Script {
     /// @dev Included to enable compilation of the script without a $MNEMONIC environment variable.
     string internal constant TEST_MNEMONIC = "test test test test test test test test test test test junk";
@@ -27,7 +41,9 @@ abstract contract BaseScript is Script {
     /// The use case for $DEPLOYER_ADDRESS is to specify the broadcaster key and its address via the command line.
     constructor() {
         console.log(
-            string.concat("Deploying on Chain: ", StdChains.getChain(block.chainid).name, " (", vm.toString(block.chainid), ")")
+            string.concat(
+                "Deploying on Chain: ", StdChains.getChain(block.chainid).name, " (", vm.toString(block.chainid), ")"
+            )
         );
         address from = vm.envOr({name: "DEPLOYER_ADDRESS", defaultValue: address(0)});
         if (from != address(0)) {
