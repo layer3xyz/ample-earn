@@ -14,7 +14,6 @@ import {AmpleEarnFactory} from "../../../src/ample/AmpleEarnFactory.sol";
 import {IOwnable} from "../../../src/interfaces/IEulerEarn.sol";
 import {MerkleHelper} from "../helpers/MerkleHelper.sol";
 import {VRFCoordinatorV2_5Mock} from "../mocks/chainlink/VRFCoordinatorV2_5Mock.sol";
-import {PerspectiveMock} from "../../mocks/PerspectiveMock.sol";
 import {IPerspective} from "../../../src/interfaces/IPerspective.sol";
 
 uint256 constant TIMELOCK = 1 weeks;
@@ -86,7 +85,7 @@ contract AmpleEarnForkTest is Test {
 
     function setUp() public virtual {
         // Fork Base mainnet at a recent block
-        vm.createSelectFork(vm.envString("BASE_RPC"), 30_036_405);
+        vm.createSelectFork(vm.envString("BASE_RPC_URL"), 30_036_405);
 
         // Create test users
         OWNER = makeAddr("Owner");
